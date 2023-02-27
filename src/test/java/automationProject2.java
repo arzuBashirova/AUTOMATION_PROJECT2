@@ -118,18 +118,19 @@ public class automationProject2 {
 
 
         //Select the card type randomly.
+          String creditCardNumber="";
+          int random =(int)(Math.random()*2);
+          List<WebElement> clickCardType = driver.findElements(By.xpath("//input[@type='radio']"));
+          clickCardType.get(random).click();
+
         List<WebElement> cardTypes = driver.findElements(By.xpath("//input[@type='radio']"));
+        List<String> stringCardType=new ArrayList<>();
+        for (WebElement each:cardTypes) {
+            stringCardType.add(each.getAttribute("value"));
+        }
 
-            String creditCardNumber="";
-
-            int random =(int)(Math.random() * 3);
-
-            WebElement cardType = cardTypes.get(random);
-
-            String stringCardType=cardType.toString();
-            cardTypes.get(random).click();
-
-            // Enter the random card number:
+        String cardType = stringCardType.get(random);
+        // Enter the random card number:
             switch (random){
 
                 case 0: creditCardNumber=4+faker.number().digits(15);
@@ -153,7 +154,10 @@ public class automationProject2 {
         int randomDate =1+(int)(Math.random()* 11);
         String expDate=""+randomDate;
 
-        driver.findElement(By.name("ctl00$MainContent$fmwOrder$TextBox1")).sendKeys(expDate.length()==2? expDate+"/"+faker.number().numberBetween(23,40): 0+expDate+"/"+faker.number().numberBetween(23,40));
+        String expDate1=expDate+"/"+faker.number().numberBetween(23,40);
+        String expDate2=0+expDate+"/"+faker.number().numberBetween(23,40);
+
+        driver.findElement(By.name("ctl00$MainContent$fmwOrder$TextBox1")).sendKeys(expDate.length()==2? expDate1: expDate2);
 
         //Click on Process
 
@@ -163,27 +167,19 @@ public class automationProject2 {
 
         //Verify that “New order has been successfully added” message appeared on the page.
 
-      Assert.assertEquals(driver.findElement(By.tagName("strong")).getText(),"New order has been successfully added.");
+        Assert.assertEquals(driver.findElement(By.tagName("strong")).getText(),"New order has been successfully added.");
 
-      //Click on View All Orders link.
+       //Click on View All Orders link.
 
         driver.findElement(By.linkText("View all orders")).click();
-      // The placed order details appears on the first row of the orders table.
-      // Verify that the entire information contained on the row (Name, Product, Quantity, etc) matches the previously entered information in previous steps.
-
-    // driver.quit();
-
 
         //product
         String product= "MyMoney";
         //Create current date
-        LocalDate dateObj = LocalDate.now();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
-        String date = dateObj.format(formatter);
-        System.out.println(date);
+        String date = driver.findElement(By.xpath("//table[@class='SampleTable']//tr[2]/td[5]")).getText();
+
 
         List<WebElement> allRows = driver.findElements(By.xpath("//table[@class='SampleTable']//tr[2]/td"));
-
         List<String > firstRow= new ArrayList<>();
 
 
@@ -192,22 +188,21 @@ public class automationProject2 {
             if(!allRows.get(i).getText().isEmpty())
          firstRow.add(allRows.get(i).getText());
         }
-        System.out.println(firstRow);
 
-        System.out.println(firstRow.get(3)+"  "+firstRow.get(8)+"  "+firstRow.get(9));
 
-        Assert.assertEquals(customerName,firstRow.get(0));
-        Assert.assertEquals(product,firstRow.get(1));
-        Assert.assertEquals(quantityOfProduct,firstRow.get(2));
-        //Assert.assertEquals(date,firstRow.get(3)); //i tried a lot. but it didn't work as intended.i printed it out it seems ok but doesn't work
-        Assert.assertEquals(street,firstRow.get(4));
-        Assert.assertEquals(city,firstRow.get(5));
-        Assert.assertEquals(state,firstRow.get(6));
-        Assert.assertEquals(zipCode,firstRow.get(7));
-       // Assert.assertEquals(cardType,firstRow.get(8));//i tried a lot. but it didn't work as intended.i printed it out it seems ok but doesn't work
-        Assert.assertEquals(creditCardNumber, firstRow.get(9));
-       // Assert.assertEquals(expDate,firstRow.get(10));//i tried a lot. but it didn't work as intended.i printed it out it seems ok but doesn't work
 
+
+        Assert.assertEquals(firstRow.get(0),customerName);
+        Assert.assertEquals(firstRow.get(1),product);
+        Assert.assertEquals(firstRow.get(2),quantityOfProduct);
+        Assert.assertEquals(firstRow.get(3),date);
+        Assert.assertEquals(firstRow.get(4),street);
+        Assert.assertEquals(firstRow.get(5),city);
+        Assert.assertEquals(firstRow.get(6),state);
+        Assert.assertEquals(firstRow.get(7),zipCode);
+        Assert.assertEquals(firstRow.get(8),cardType);
+        Assert.assertEquals(firstRow.get(9),creditCardNumber);
+        Assert.assertEquals(firstRow.get(10),expDate.length()==2? expDate1: expDate2);
 
         driver.findElement(By.id("ctl00_logout")).click();
 
